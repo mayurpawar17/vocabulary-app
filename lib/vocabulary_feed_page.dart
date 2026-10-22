@@ -160,13 +160,13 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                           borderRadius: BorderRadius.circular(28),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
+                              color: Colors.black.withValues(alpha: 0.3),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
                             ),
                           ],
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.08),
+                            color: Colors.white.withValues(alpha: 0.08),
                             width: 1.5,
                           ),
                         ),
@@ -184,7 +184,7 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                                   decoration: BoxDecoration(
                                     color: const Color(
                                       0xFF6366F1,
-                                    ).withOpacity(0.2),
+                                    ).withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: const Text(
@@ -228,7 +228,7 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                             Text(
                               item['meaning'],
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 18,
                                 height: 1.4,
                               ),
@@ -237,10 +237,10 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.03),
+                                color: Colors.white.withValues(alpha: 0.03),
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.05),
+                                  color: Colors.white.withValues(alpha: 0.05),
                                 ),
                               ),
                               child: Row(
@@ -256,7 +256,9 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                                     child: Text(
                                       item['example'],
                                       style: TextStyle(
-                                        color: Colors.white.withOpacity(0.65),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.65,
+                                        ),
                                         fontSize: 14,
                                         fontStyle: FontStyle.italic,
                                         height: 1.4,
@@ -286,7 +288,7 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                 Text(
                   'Vocabulary',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
@@ -294,7 +296,7 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                 Text(
                   '${_currentPage + 1} / ${words.length}',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -311,7 +313,7 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
               children: [
                 Icon(
                   Icons.keyboard_arrow_up_rounded,
-                  color: Colors.white.withOpacity(0.4),
+                  color: Colors.white.withValues(alpha: 0.4),
                   size: 24,
                 ),
                 const SizedBox(height: 2),
@@ -320,7 +322,7 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                       ? 'Swipe up for next word'
                       : 'End of feed',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
+                    color: Colors.white.withValues(alpha: 0.4),
                     fontSize: 12,
                     letterSpacing: 0.5,
                   ),
