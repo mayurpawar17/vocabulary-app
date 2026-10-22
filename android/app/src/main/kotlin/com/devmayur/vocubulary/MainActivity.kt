@@ -1,4 +1,4 @@
-package com.example.vocabulary_app
+package com.devmayur.vocubulary
 
 import io.flutter.embedding.android.FlutterActivity
 
