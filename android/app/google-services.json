@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "955642941081",
+    "project_id": "vocabulary-app-ec18d",
+    "storage_bucket": "vocabulary-app-ec18d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955642941081:android:a2d9dbbec1b0767f1cb208",
+        "android_client_info": {
+          "package_name": "com.devmayur.vocubulary"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxs4z0EPU_8FMKjRXOzD3Kmr3XM8K0ROc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
