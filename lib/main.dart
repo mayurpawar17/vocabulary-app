@@ -11,26 +11,75 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+      debugShowCheckedModeBanner: false,
+      home: VocabularyFeed(),
+    );
+  }
+}
+
+class VocabularyFeed extends StatelessWidget {
+  VocabularyFeed({super.key});
+
+  final List<Map<String, String>> words = [
+    {
+      'word': 'Abundant',
+      'meaning': 'Existing in large quantities.',
+      'example': 'The garden has abundant flowers.',
+    },
+    {
+      'word': 'Resilient',
+      'meaning': 'Able to recover quickly.',
+      'example': 'She is resilient after setbacks.',
+    },
+    {
+      'word': 'Meticulous',
+      'meaning': 'Very careful about details.',
+      'example': 'He is meticulous in his work.',
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: PageView.builder(
+        scrollDirection: Axis.vertical,
+        itemCount: words.length,
+        itemBuilder: (context, index) {
+          final item = words[index];
+
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    item['word']!,
+                    style: const TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    item['meaning']!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Example: ${item['example']}',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 48),
+                  const Icon(Icons.keyboard_arrow_up),
+                  const Text('Swipe up for the next word'),
+                ],
+              ),
+            ),
+          );
+        },
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
