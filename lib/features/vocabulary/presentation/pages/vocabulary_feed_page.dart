@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vocabulary_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:vocabulary_app/features/auth/presentation/bloc/auth_event.dart';
 
@@ -296,12 +297,7 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                IconButton(
-                  tooltip: 'Sign out',
-                  onPressed: () =>
-                      context.read<AuthBloc>().add(const SignOutRequested()),
-                  icon: const Icon(Icons.logout_rounded, color: Colors.white70),
-                ),
+            
                 Text(
                   '${_currentPage + 1} / ${words.length}',
                   style: TextStyle(
@@ -309,6 +305,14 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
+                ),
+                    IconButton(
+                  // tooltip: 'Sign out',
+                  onPressed: () => context.push('/profile'),
+                      // context.read<AuthBloc>().add(const SignOutRequested()),
+                  // icon: const Icon(Icons.logout_rounded, color: Colors.white70),
+                  icon: const Icon(Icons.person, color: Colors.white70),
+
                 ),
               ],
             ),
