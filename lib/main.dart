@@ -7,6 +7,12 @@ import 'package:vocabulary_app/core/app/app_router.dart';
 import 'package:vocabulary_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:vocabulary_app/features/auth/auth_router_refresh_notifier.dart';
 import 'package:vocabulary_app/features/auth/data/remoteDataSource/auth_remote_data_source.dart';
+import 'package:vocabulary_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:vocabulary_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:vocabulary_app/features/auth/domain/userCase/login_use_case.dart';
+import 'package:vocabulary_app/features/auth/domain/userCase/logout_use_case.dart';
+import 'package:vocabulary_app/features/auth/domain/userCase/register_use_case.dart';
+import 'package:vocabulary_app/features/auth/domain/userCase/watch_auth_state_use_case.dart';
 import 'package:vocabulary_app/firebase_options.dart';
 
 Future<void> main() async {
@@ -31,8 +37,14 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
+    final AuthRepository authRepository = AuthRepositoryImpl(
+      FirebaseAuthRemoteDataSource(FirebaseAuth.instance),
+    );
     _authBloc = AuthBloc(
-      AuthRemoteDataSource(FirebaseAuth.instance),
+      loginUseCase: LoginUseCase(authRepository),
+      logoutUseCase: LogoutUseCase(authRepository),
+      registerUseCase: RegisterUseCase(authRepository),
+      watchAuthStateUseCase: WatchAuthStateUseCase(authRepository),
     );
 
     _refreshNotifier = AuthRouterRefreshNotifier(_authBloc);
@@ -41,10 +53,6 @@ class _MyAppState extends State<MyApp> {
       authBloc: _authBloc,
       refreshNotifier: _refreshNotifier,
     );
-
-    // If your AuthBloc requires an explicit initial
-    // session-check event, dispatch it here.
-    // _authBloc.add(const CheckAuthStatusEvent());
   }
 
   @override
@@ -68,4 +76,3 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 }
-

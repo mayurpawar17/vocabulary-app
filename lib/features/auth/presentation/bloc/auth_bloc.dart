@@ -1,28 +1,38 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vocabulary_app/features/auth/domain/entity/auth_exception.dart';
+import 'package:vocabulary_app/features/auth/domain/entity/auth_user.dart';
+import 'package:vocabulary_app/features/auth/domain/entity/login_request.dart';
+import 'package:vocabulary_app/features/auth/domain/entity/register_request.dart';
+import 'package:vocabulary_app/features/auth/domain/userCase/login_use_case.dart';
+import 'package:vocabulary_app/features/auth/domain/userCase/logout_use_case.dart';
+import 'package:vocabulary_app/features/auth/domain/userCase/register_use_case.dart';
+import 'package:vocabulary_app/features/auth/domain/userCase/watch_auth_state_use_case.dart';
 
 import 'auth_event.dart';
-import '../../data/remoteDataSource/auth_remote_data_source.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthRemoteDataSource _authService;
-  late final StreamSubscription<User?> _authSubscription;
 
-  AuthBloc(this._authService) : super(const AuthLoading()) {
+    final LoginUseCase _loginUseCase;
+  final LogoutUseCase _logoutUseCase;
+  final RegisterUseCase _registerUseCase;
+  late final StreamSubscription<AuthUser?> _authSubscription;
+  
+  AuthBloc({
+    required LoginUseCase loginUseCase,
+    required LogoutUseCase logoutUseCase,
+    required RegisterUseCase registerUseCase,
+    required WatchAuthStateUseCase watchAuthStateUseCase,
+  }) : _loginUseCase = loginUseCase,
+       _logoutUseCase = logoutUseCase,
+       _registerUseCase = registerUseCase,
+       super(const AuthLoading()) {
     on<AuthStatusChanged>(_onAuthStatusChanged);
     on<SignInRequested>(_onSignInRequested);
     on<RegistrationRequested>(_onRegistrationRequested);
     on<SignOutRequested>(_onSignOutRequested);
-
-    _authSubscription = _authService.authStateChanges.listen(
-      (user) => add(AuthStatusChanged(user)),
-      onError: (Object error, StackTrace stackTrace) {
-        add(const _AuthStatusCheckFailed());
-      },
-    );
     on<_AuthStatusCheckFailed>((event, emit) {
       emit(
         const AuthFailure(
@@ -30,8 +40,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ),
       );
     });
-    add(AuthStatusChanged(_authService.currentUser));
+
+    _authSubscription = watchAuthStateUseCase.execute().listen(
+      (user) => add(AuthStatusChanged(user)),
+      onError: (_) => add(const _AuthStatusCheckFailed()),
+    );
   }
+
+
 
   void _onAuthStatusChanged(AuthStatusChanged event, Emitter<AuthState> emit) {
     final user = event.user;
@@ -48,10 +64,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(const AuthSubmitting());
     try {
-      await _authService.signIn(email: event.email, password: event.password);
-    } on FirebaseAuthException catch (error) {
+      await _loginUseCase.execute(
+        LoginRequest(email: event.email, password: event.password),
+      );
+    } on AuthException catch (error) {
       emit(AuthFailure(_messageFor(error)));
-    } catch (error) {
+    } on Exception {
       emit(const AuthFailure('Sign in failed. Please try again.'));
     }
   }
@@ -62,10 +80,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(const AuthSubmitting());
     try {
-      await _authService.register(email: event.email, password: event.password);
-    } on FirebaseAuthException catch (error) {
+      await _registerUseCase.execute(
+        RegisterRequest(email: event.email, password: event.password),
+      );
+    } on AuthException catch (error) {
       emit(AuthFailure(_messageFor(error)));
-    } catch (error) {
+    } on Exception {
       emit(const AuthFailure('Account creation failed. Please try again.'));
     }
   }
@@ -75,34 +95,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     try {
-      await _authService.signOut();
-    } on FirebaseAuthException catch (error) {
+      await _logoutUseCase.execute();
+    } on AuthException catch (error) {
       emit(AuthFailure(_messageFor(error)));
-    } catch (error) {
+    } on Exception {
       emit(const AuthFailure('Sign out failed. Please try again.'));
     }
   }
 
-  String _messageFor(FirebaseAuthException error) {
-    switch (error.code) {
-      case 'invalid-email':
-        return 'Enter a valid email address.';
-      case 'user-disabled':
-        return 'This account has been disabled.';
-      case 'user-not-found':
-      case 'wrong-password':
-      case 'invalid-credential':
-        return 'The email or password is incorrect.';
-      case 'email-already-in-use':
-        return 'An account already exists for this email.';
-      case 'weak-password':
-        return 'Choose a stronger password (at least 6 characters).';
-      case 'network-request-failed':
-        return 'Network error. Check your connection and try again.';
-      default:
-        return error.message ?? 'Authentication failed. Please try again.';
-    }
-  }
+  String _messageFor(AuthException error) => switch (error.reason) {
+    AuthFailureReason.invalidEmail => 'Enter a valid email address.',
+    AuthFailureReason.accountDisabled => 'This account has been disabled.',
+    AuthFailureReason.invalidCredentials =>
+      'The email or password is incorrect.',
+    AuthFailureReason.emailAlreadyInUse =>
+      'An account already exists for this email.',
+    AuthFailureReason.weakPassword =>
+      'Choose a stronger password (at least 6 characters).',
+    AuthFailureReason.network =>
+      'Network error. Check your connection and try again.',
+    AuthFailureReason.unknown => 'Authentication failed. Please try again.',
+  };
 
   @override
   Future<void> close() async {

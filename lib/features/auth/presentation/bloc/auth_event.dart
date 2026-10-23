@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vocabulary_app/features/auth/domain/entity/auth_user.dart';
 
 abstract class AuthEvent extends Equatable {
   const AuthEvent();
@@ -11,10 +11,10 @@ abstract class AuthEvent extends Equatable {
 class AuthStatusChanged extends AuthEvent {
   const AuthStatusChanged(this.user);
 
-  final User? user;
+  final AuthUser? user;
 
   @override
-  List<Object?> get props => [user?.uid];
+  List<Object?> get props => [user?.id];
 }
 
 class SignInRequested extends AuthEvent {

@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vocabulary_app/features/auth/domain/entity/auth_user.dart';
 import 'package:vocabulary_app/features/auth/domain/entity/login_request.dart';
 import 'package:vocabulary_app/features/auth/domain/repositories/auth_repository.dart';
 
@@ -7,7 +7,7 @@ class LoginUseCase {
 
   LoginUseCase(this._authRepository);
 
-  Future<UserCredential> execute(LoginRequest loginRequest) {
+  Future<AuthUser> execute(LoginRequest loginRequest) {
     return _authRepository.login(loginRequest);
   }
 }
