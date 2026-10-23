@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
-class AuthService {
-  AuthService(this._firebaseAuth);
+class AuthRemoteDataSource {
+  AuthRemoteDataSource(this._firebaseAuth);
 
   final FirebaseAuth _firebaseAuth;
 

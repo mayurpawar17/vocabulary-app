@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vocabulary_app/auth/auth_bloc.dart';
-import 'package:vocabulary_app/auth/auth_event.dart';
+import 'package:vocabulary_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:vocabulary_app/features/auth/presentation/bloc/auth_event.dart';
 
 class VocabularyFeedPage extends StatefulWidget {
   const VocabularyFeedPage({super.key});

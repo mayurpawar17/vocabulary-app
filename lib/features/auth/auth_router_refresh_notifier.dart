@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'auth_bloc.dart';
-import 'auth_state.dart';
+import 'presentation/bloc/auth_bloc.dart';
+import 'presentation/bloc/auth_state.dart';
 
 class AuthRouterRefreshNotifier extends ChangeNotifier {
   AuthRouterRefreshNotifier(AuthBloc authBloc) {

@@ -3,14 +3,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vocabulary_app/auth/auth_bloc.dart';
-import 'package:vocabulary_app/auth/auth_event.dart';
-import 'package:vocabulary_app/auth/auth_pages.dart';
-import 'package:vocabulary_app/auth/auth_router_refresh_notifier.dart';
-import 'package:vocabulary_app/auth/auth_service.dart';
-import 'package:vocabulary_app/auth/auth_state.dart';
+import 'package:vocabulary_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:vocabulary_app/features/auth/presentation/pages/auth_pages.dart';
+import 'package:vocabulary_app/features/auth/auth_router_refresh_notifier.dart';
+import 'package:vocabulary_app/features/auth/data/remoteDataSource/auth_remote_data_source.dart';
+import 'package:vocabulary_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:vocabulary_app/firebase_options.dart';
-import 'package:vocabulary_app/vocabulary_feed_page.dart';
+import 'package:vocabulary_app/features/vocabulary/presentation/pages/vocabulary_feed_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +32,7 @@ class _AppRootState extends State<_AppRoot> {
   @override
   void initState() {
     super.initState();
-    _authBloc = AuthBloc(AuthService(FirebaseAuth.instance));
+    _authBloc = AuthBloc(AuthRemoteDataSource(FirebaseAuth.instance));
     _routerRefreshNotifier = AuthRouterRefreshNotifier(_authBloc);
     _router = GoRouter(
       initialLocation: '/loading',

@@ -4,10 +4,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'auth_event.dart';
-import 'auth_service.dart';
+import '../../data/remoteDataSource/auth_remote_data_source.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  final AuthRemoteDataSource _authService;
+  late final StreamSubscription<User?> _authSubscription;
+
   AuthBloc(this._authService) : super(const AuthLoading()) {
     on<AuthStatusChanged>(_onAuthStatusChanged);
     on<SignInRequested>(_onSignInRequested);
@@ -29,9 +32,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
     add(AuthStatusChanged(_authService.currentUser));
   }
-
-  final AuthService _authService;
-  late final StreamSubscription<User?> _authSubscription;
 
   void _onAuthStatusChanged(AuthStatusChanged event, Emitter<AuthState> emit) {
     final user = event.user;
