@@ -22,6 +22,8 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
+  static const _backgroundColor = Color(0xFFF1ECDF);
+
   late int _selectedIndex;
 
   @override
@@ -33,6 +35,7 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _backgroundColor,
       body: IndexedStack(
         index: _selectedIndex,
         children: [
@@ -46,6 +49,11 @@ class _AppShellState extends State<AppShell> {
         ],
       ),
       bottomNavigationBar: NavigationBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: Colors.transparent,
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {
           setState(() {

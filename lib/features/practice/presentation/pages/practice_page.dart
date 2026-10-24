@@ -64,7 +64,14 @@ class _PracticePageState extends State<PracticePage> {
     final isComplete = _questionIndex == _questions.length;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Practice')),
+      backgroundColor: const Color(0xFFF1ECDF),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        title: const Text('Practice'),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),

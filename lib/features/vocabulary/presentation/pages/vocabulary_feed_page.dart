@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:vocabulary_app/features/vocabulary/domain/usecases/pronounce_word_use_case.dart';
 import 'package:vocabulary_app/features/vocabulary/domain/usecases/stop_speech_use_case.dart';
 
@@ -133,6 +134,11 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
 
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  final Set<int> _bookmarkedWords = {};
+
+  static const _backgroundColor = Color(0xFFF1ECDF);
+  static const _textColor = Color(0xFF24231F);
+  static const _secondaryTextColor = Color(0xFF68645B);
 
   @override
   void didUpdateWidget(covariant VocabularyFeedPage oldWidget) {
@@ -169,6 +175,48 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
     }
   }
 
+  Future<void> _showWordDetails(Map<String, dynamic> item) {
+    return showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: _backgroundColor,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        title: Text(
+          item['word'] as String,
+          style: const TextStyle(
+            color: _textColor,
+            fontFamily: 'serif',
+          ),
+        ),
+        content: Text(
+          '${item['meaning']}\n\nExample: ${item['example']}',
+          style: const TextStyle(color: _secondaryTextColor, height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _copyWord(Map<String, dynamic> item) async {
+    final word = item['word'] as String;
+    await Clipboard.setData(
+      ClipboardData(
+        text: '$word\n${item['meaning']}\n\nExample: ${item['example']}',
+      ),
+    );
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('Word copied to clipboard.')));
+  }
+
   @override
   void dispose() {
     unawaited(_stopSpeech());
@@ -178,238 +226,142 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
 
   @override
   Widget build(BuildContext context) {
+    final currentWord = words[_currentPage];
+    final isFavorite = currentWord['isFavorite'] as bool;
+    final isBookmarked = _bookmarkedWords.contains(_currentPage);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A), // Slate dark background
-      body: Stack(
-        children: [
-          PageView.builder(
-            controller: _pageController,
-            scrollDirection: Axis.vertical,
-            itemCount: words.length,
-            onPageChanged: (index) {
-              unawaited(_stopSpeech());
-              setState(() {
-                _currentPage = index;
-              });
-            },
-            itemBuilder: (context, index) {
-              final item = words[index];
+      backgroundColor: _backgroundColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                scrollDirection: Axis.vertical,
+                itemCount: words.length,
+                onPageChanged: (index) {
+                  unawaited(_stopSpeech());
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemBuilder: (context, index) {
+                  final item = words[index];
+                  final word = item['word'] as String;
+                  final meaning = item['meaning'] as String;
+                  final example = item['example'] as String;
 
-              return SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 40,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(28),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(28),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.3),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.08),
-                            width: 1.5,
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(32, 28, 32, 16),
+                    child: Column(
+                      children: [
+                        const Spacer(flex: 2),
+                        Text(
+                          word,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: _textColor,
+                            fontFamily: 'serif',
+                            fontSize: 32,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .primary
-                                        .withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    'DAILY WORD',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    item['isFavorite']
-                                        ? Icons.favorite_rounded
-                                        : Icons.favorite_border_rounded,
-                                    color: item['isFavorite']
-                                        ? Colors.redAccent
-                                        : Colors.white60,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      item['isFavorite'] = !item['isFavorite'];
-                                    });
-                                  },
-                                ),
-                              ],
+                        const SizedBox(height: 10),
+                        TextButton.icon(
+                          onPressed: () => _speakWord(word),
+                          icon: Icon(
+                            Icons.volume_up_outlined,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 18,
+                          ),
+                          label: Text(
+                            'Listen',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
                             ),
-                            const SizedBox(height: 20),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    item['word'],
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 36,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: -0.5,
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  tooltip: 'Pronounce ${item['word']}',
-                                  onPressed: () =>
-                                      _speakWord(item['word'] as String),
-                                  icon:  Icon(
-                                    Icons.volume_up_rounded,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 14),
-                            Text(
-                              item['meaning'],
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.8),
-                                fontSize: 18,
-                                height: 1.4,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.03),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.05),
-                                ),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                   Icon(
-                                    Icons.format_quote_rounded,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      item['example'],
-                                      style: TextStyle(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.65,
-                                        ),
-                                        fontSize: 14,
-                                        fontStyle: FontStyle.italic,
-                                        height: 1.4,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          // Top Header Counter
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 12,
-            left: 24,
-            right: 24,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Vocabular',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-
-                Text(
-                  '${_currentPage + 1} / ${words.length}',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+                        const SizedBox(height: 18),
+                        Text(
+                          meaning,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: _textColor,
+                            fontSize: 14,
+                            height: 1.45,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          example,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: _secondaryTextColor,
+                            fontSize: 12,
+                            height: 1.4,
+                          ),
+                        ),
+                        const Spacer(flex: 3),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-          // Bottom Swipe Indicator
-          Positioned(
-            bottom: 24,
-            left: 0,
-            right: 0,
-            child: Column(
-              children: [
-                Icon(
-                  Icons.keyboard_arrow_up_rounded,
-                  color: Colors.white.withValues(alpha: 0.4),
-                  size: 24,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  _currentPage < words.length - 1
-                      ? 'Swipe up for next word'
-                      : 'End of feed',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.4),
-                    fontSize: 12,
-                    letterSpacing: 0.5,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    tooltip: 'Word details',
+                    onPressed: () => _showWordDetails(words[_currentPage]),
+                    icon: const Icon(Icons.info_outline_rounded),
                   ),
-                ),
-              ],
+                  IconButton(
+                    tooltip: 'Copy word',
+                    onPressed: () => _copyWord(words[_currentPage]),
+                    icon: const Icon(Icons.ios_share_outlined),
+                  ),
+                  IconButton(
+                    tooltip: isFavorite ? 'Remove favorite' : 'Add favorite',
+                    onPressed: () {
+                      setState(() {
+                        words[_currentPage]['isFavorite'] = !isFavorite;
+                      });
+                    },
+                    icon: Icon(
+                      isFavorite
+                          ? Icons.favorite_rounded
+                          : Icons.favorite_border_rounded,
+                      color: isFavorite
+                          ? Theme.of(context).colorScheme.primary
+                          : _textColor,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: isBookmarked ? 'Remove bookmark' : 'Bookmark word',
+                    onPressed: () {
+                      setState(() {
+                        if (isBookmarked) {
+                          _bookmarkedWords.remove(_currentPage);
+                        } else {
+                          _bookmarkedWords.add(_currentPage);
+                        }
+                      });
+                    },
+                    icon: Icon(
+                      isBookmarked
+                          ? Icons.bookmark_rounded
+                          : Icons.bookmark_border_rounded,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

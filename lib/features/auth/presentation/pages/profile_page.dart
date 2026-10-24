@@ -19,11 +19,13 @@ class ProfilePage extends StatelessWidget {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF0F172A),
+        backgroundColor: const Color(0xFFF1ECDF),
         appBar: AppBar(
-          backgroundColor: const Color(0xFF1E293B),
+          backgroundColor: Colors.transparent,
           elevation: 0,
-          title: const Text('Profile', style: TextStyle(color: Colors.white70)),
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
+          title: const Text('Profile'),
           actions: [
             IconButton(
               tooltip: 'Sign out',
@@ -33,12 +35,7 @@ class ProfilePage extends StatelessWidget {
             ),
           ],
         ),
-        body: const Center(
-          child: Text(
-            'This is the profile page.',
-            style: TextStyle(color: Colors.white70),
-          ),
-        ),
+        body: const Center(child: Text('This is the profile page.')),
       ),
     );
   }
