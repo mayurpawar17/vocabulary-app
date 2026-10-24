@@ -1,11 +1,10 @@
 import 'package:go_router/go_router.dart';
 import 'package:vocabulary_app/features/auth/presentation/pages/login_page.dart';
-import 'package:vocabulary_app/features/auth/presentation/pages/profile_page.dart';
 import 'package:vocabulary_app/features/auth/presentation/pages/register_page.dart';
 
-import '../../features/vocabulary/presentation/pages/vocabulary_feed_page.dart';
 import '../../features/vocabulary/domain/usecases/pronounce_word_use_case.dart';
 import '../../features/vocabulary/domain/usecases/stop_speech_use_case.dart';
+import '../../features/home/presentation/pages/app_shell.dart';
 
 import 'package:flutter/material.dart';
 
@@ -39,6 +38,9 @@ class AppRouter {
             return '/login';
 
           case AuthAuthenticated():
+            if (location == '/profile') {
+              return '/home?tab=profile';
+            }
             if (location == '/login' ||
                 location == '/register' ||
                 location == '/loading') {
@@ -53,9 +55,11 @@ class AppRouter {
             return '/login';
 
           case AuthFailure():
+            if (location == '/profile') {
+              return '/home?tab=profile';
+            }
             if (location == '/login' ||
                 location == '/register' ||
-                location == '/profile' ||
                 location == '/home') {
               return null;
             }
@@ -95,18 +99,15 @@ class AppRouter {
           path: '/home',
           pageBuilder: (context, state) => NoTransitionPage<void>(
             key: state.pageKey,
-            child: VocabularyFeedPage(
+            child: AppShell(
               pronounceWord: pronounceWord,
               stopSpeech: stopSpeech,
+              initialIndex: switch (state.uri.queryParameters['tab']) {
+                'practice' => 1,
+                'profile' => 2,
+                _ => 0,
+              },
             ),
-          ),
-          // builder: (context, state) => const VocabularyFeedPage(),
-        ),
-        GoRoute(
-          path: '/profile',
-          pageBuilder: (context, state) => NoTransitionPage<void>(
-            key: state.pageKey,
-            child: const ProfilePage(),
           ),
         ),
       ],
@@ -119,9 +120,13 @@ class _LoadingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFFF7F8FC),
-      body: Center(child: CircularProgressIndicator(color: Color(0xFF6366F1))),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FC),
+      body: Center(
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
     );
   }
 }

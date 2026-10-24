@@ -33,7 +33,12 @@ class ProfilePage extends StatelessWidget {
             ),
           ],
         ),
-        body: const Center(child: Text('This is the profile page.')),
+        body: const Center(
+          child: Text(
+            'This is the profile page.',
+            style: TextStyle(color: Colors.white70),
+          ),
+        ),
       ),
     );
   }

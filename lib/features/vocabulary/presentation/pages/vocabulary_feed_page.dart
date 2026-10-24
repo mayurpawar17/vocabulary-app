@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:vocabulary_app/features/vocabulary/domain/usecases/pronounce_word_use_case.dart';
 import 'package:vocabulary_app/features/vocabulary/domain/usecases/stop_speech_use_case.dart';
 
@@ -9,11 +8,13 @@ class VocabularyFeedPage extends StatefulWidget {
   const VocabularyFeedPage({
     required this.pronounceWord,
     required this.stopSpeech,
+    this.isActive = true,
     super.key,
   });
 
   final PronounceWordUseCase pronounceWord;
   final StopSpeechUseCase stopSpeech;
+  final bool isActive;
 
   @override
   State<VocabularyFeedPage> createState() => _VocabularyFeedPageState();
@@ -133,6 +134,14 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
+  @override
+  void didUpdateWidget(covariant VocabularyFeedPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isActive && !widget.isActive) {
+      unawaited(_stopSpeech());
+    }
+  }
+
   Future<void> _speakWord(String word) async {
     try {
       await widget.pronounceWord.execute(word);
@@ -229,15 +238,18 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                                     vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: const Color(
-                                      0xFF6366F1,
-                                    ).withValues(alpha: 0.2),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'DAILY WORD',
                                     style: TextStyle(
-                                      color: Color(0xFF818CF8),
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 1.2,
@@ -279,9 +291,11 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                                   tooltip: 'Pronounce ${item['word']}',
                                   onPressed: () =>
                                       _speakWord(item['word'] as String),
-                                  icon: const Icon(
+                                  icon:  Icon(
                                     Icons.volume_up_rounded,
-                                    color: Color(0xFF818CF8),
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                   ),
                                 ),
                               ],
@@ -308,9 +322,11 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Icon(
+                                   Icon(
                                     Icons.format_quote_rounded,
-                                    color: Color(0xFF818CF8),
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                     size: 20,
                                   ),
                                   const SizedBox(width: 10),
@@ -348,7 +364,7 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Vocabulary',
+                  'Vocabular',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 18,
@@ -363,13 +379,6 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
-                ),
-                IconButton(
-                  // tooltip: 'Sign out',
-                  onPressed: () => context.push('/profile'),
-                  // context.read<AuthBloc>().add(const SignOutRequested()),
-                  // icon: const Icon(Icons.logout_rounded, color: Colors.white70),
-                  icon: const Icon(Icons.person, color: Colors.white70),
                 ),
               ],
             ),

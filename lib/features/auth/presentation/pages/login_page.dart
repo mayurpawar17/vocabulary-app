@@ -69,9 +69,9 @@ class _LoginPageState extends State<LoginPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.auto_stories_rounded,
-                              color: Color(0xFF6366F1),
+                              color: Theme.of(context).colorScheme.primary,
                               size: 44,
                             ),
                             const SizedBox(height: 20),
@@ -173,7 +173,9 @@ class _LoginPageState extends State<LoginPage> {
                             FilledButton(
                               onPressed: submitting ? null : _submit,
                               style: FilledButton.styleFrom(
-                                backgroundColor: const Color(0xFF6366F1),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primary,
                                 minimumSize: const Size.fromHeight(52),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),

@@ -72,6 +72,12 @@ class _MyAppState extends State<MyApp> {
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         title: 'Vocabulary App',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFFEB4B33),
+          ).copyWith(primary: const Color(0xFFEB4B33)),
+          primaryColor: const Color(0xFFEB4B33),
+        ),
         routerConfig: _router,
       ),
     );
