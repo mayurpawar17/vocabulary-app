@@ -13,6 +13,11 @@ import 'package:vocabulary_app/features/auth/domain/userCase/login_use_case.dart
 import 'package:vocabulary_app/features/auth/domain/userCase/logout_use_case.dart';
 import 'package:vocabulary_app/features/auth/domain/userCase/register_use_case.dart';
 import 'package:vocabulary_app/features/auth/domain/userCase/watch_auth_state_use_case.dart';
+import 'package:vocabulary_app/features/vocabulary/data/datasources/flutter_tts_speech_data_source.dart';
+import 'package:vocabulary_app/features/vocabulary/data/repositories/speech_repository_impl.dart';
+import 'package:vocabulary_app/features/vocabulary/domain/repositories/speech_repository.dart';
+import 'package:vocabulary_app/features/vocabulary/domain/usecases/pronounce_word_use_case.dart';
+import 'package:vocabulary_app/features/vocabulary/domain/usecases/stop_speech_use_case.dart';
 import 'package:vocabulary_app/firebase_options.dart';
 
 Future<void> main() async {
@@ -49,9 +54,14 @@ class _MyAppState extends State<MyApp> {
 
     _refreshNotifier = AuthRouterRefreshNotifier(_authBloc);
 
+    final SpeechRepository speechRepository = SpeechRepositoryImpl(
+      FlutterTtsSpeechDataSource(),
+    );
     _router = AppRouter.createRouter(
       authBloc: _authBloc,
       refreshNotifier: _refreshNotifier,
+      pronounceWord: PronounceWordUseCase(speechRepository),
+      stopSpeech: StopSpeechUseCase(speechRepository),
     );
   }
 

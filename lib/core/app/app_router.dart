@@ -4,6 +4,8 @@ import 'package:vocabulary_app/features/auth/presentation/pages/profile_page.dar
 import 'package:vocabulary_app/features/auth/presentation/pages/register_page.dart';
 
 import '../../features/vocabulary/presentation/pages/vocabulary_feed_page.dart';
+import '../../features/vocabulary/domain/usecases/pronounce_word_use_case.dart';
+import '../../features/vocabulary/domain/usecases/stop_speech_use_case.dart';
 
 import 'package:flutter/material.dart';
 
@@ -17,6 +19,8 @@ class AppRouter {
   static GoRouter createRouter({
     required AuthBloc authBloc,
     required AuthRouterRefreshNotifier refreshNotifier,
+    required PronounceWordUseCase pronounceWord,
+    required StopSpeechUseCase stopSpeech,
   }) {
     return GoRouter(
       initialLocation: '/loading',
@@ -91,7 +95,10 @@ class AppRouter {
           path: '/home',
           pageBuilder: (context, state) => NoTransitionPage<void>(
             key: state.pageKey,
-            child: const VocabularyFeedPage(),
+            child: VocabularyFeedPage(
+              pronounceWord: pronounceWord,
+              stopSpeech: stopSpeech,
+            ),
           ),
           // builder: (context, state) => const VocabularyFeedPage(),
         ),

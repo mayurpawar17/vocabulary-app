@@ -1,11 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vocabulary_app/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:vocabulary_app/features/auth/presentation/bloc/auth_event.dart';
+import 'package:vocabulary_app/features/vocabulary/domain/usecases/pronounce_word_use_case.dart';
+import 'package:vocabulary_app/features/vocabulary/domain/usecases/stop_speech_use_case.dart';
 
 class VocabularyFeedPage extends StatefulWidget {
-  const VocabularyFeedPage({super.key});
+  const VocabularyFeedPage({
+    required this.pronounceWord,
+    required this.stopSpeech,
+    super.key,
+  });
+
+  final PronounceWordUseCase pronounceWord;
+  final StopSpeechUseCase stopSpeech;
 
   @override
   State<VocabularyFeedPage> createState() => _VocabularyFeedPageState();
@@ -125,6 +133,40 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
+  Future<void> _speakWord(String word) async {
+    try {
+      await widget.pronounceWord.execute(word);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not play pronunciation. Check that a text-to-speech voice is available.',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _stopSpeech() async {
+    try {
+      await widget.stopSpeech.execute();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not stop pronunciation.')),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    unawaited(_stopSpeech());
+    _pageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,6 +178,7 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
             scrollDirection: Axis.vertical,
             itemCount: words.length,
             onPageChanged: (index) {
+              unawaited(_stopSpeech());
               setState(() {
                 _currentPage = index;
               });
@@ -219,14 +262,29 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                               ],
                             ),
                             const SizedBox(height: 20),
-                            Text(
-                              item['word'],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 36,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: -0.5,
-                              ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item['word'],
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 36,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  tooltip: 'Pronounce ${item['word']}',
+                                  onPressed: () =>
+                                      _speakWord(item['word'] as String),
+                                  icon: const Icon(
+                                    Icons.volume_up_rounded,
+                                    color: Color(0xFF818CF8),
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 14),
                             Text(
@@ -297,7 +355,7 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-            
+
                 Text(
                   '${_currentPage + 1} / ${words.length}',
                   style: TextStyle(
@@ -306,13 +364,12 @@ class _VocabularyFeedPageState extends State<VocabularyFeedPage> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                    IconButton(
+                IconButton(
                   // tooltip: 'Sign out',
                   onPressed: () => context.push('/profile'),
-                      // context.read<AuthBloc>().add(const SignOutRequested()),
+                  // context.read<AuthBloc>().add(const SignOutRequested()),
                   // icon: const Icon(Icons.logout_rounded, color: Colors.white70),
                   icon: const Icon(Icons.person, color: Colors.white70),
-
                 ),
               ],
             ),
